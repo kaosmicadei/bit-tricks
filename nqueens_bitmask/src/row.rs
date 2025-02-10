@@ -5,7 +5,7 @@ pub struct Row {
   cols: usize,
   diag_l: usize,
   diag_r: usize,
-  avialble_pos: usize,
+  available_pos: usize,
 }
 
 impl Row {
@@ -18,7 +18,7 @@ impl Row {
       cols: 0,
       diag_l: 0,
       diag_r: 0,
-      avialble_pos: all_cols,
+      available_pos: all_cols,
     }
   }
 
@@ -27,11 +27,11 @@ impl Row {
   }
 
   pub fn has_available_positions(&self) -> bool {
-    self.avialble_pos != 0
+    self.available_pos != 0
   }
 
   fn get_lowest_bit(&self) -> usize {
-    self.avialble_pos & self.avialble_pos.wrapping_neg()
+    self.available_pos & self.available_pos.wrapping_neg()  // Same as: x & -x.
   }
 
   pub fn get_next_column(&self) -> u32 {
@@ -42,11 +42,12 @@ impl Row {
     let bit = self.get_lowest_bit();
 
     // Remove the lowest 1 bit from the available positions in the current row.
-    self.avialble_pos ^= bit;
+    self.available_pos ^= bit;
 
     let cols = self.cols | bit;
     let diag_l = (self.diag_l | bit) << 1;
     let diag_r = (self.diag_r | bit) >> 1;
+    let occupied = cols | diag_l | diag_r;
     
     Self {
       id: self.id+1,
@@ -54,7 +55,7 @@ impl Row {
       cols,
       diag_l,
       diag_r,
-      avialble_pos: !(cols | diag_l | diag_r) & self.mask,
+      available_pos: !occupied & self.mask,
     }
   }
 }

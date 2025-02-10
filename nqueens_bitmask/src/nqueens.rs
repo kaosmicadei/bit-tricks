@@ -3,7 +3,7 @@ use crate::row::*;
 #[derive(Debug)]
 pub struct NQueens {
   n: usize,
-  solution: Vec<u32>,
+  solution: Box<[u32]>,
   stack: Vec<Row>,
 }
 
@@ -11,7 +11,7 @@ impl NQueens {
   pub fn new(n: usize) -> Self {
     Self {
       n,
-      solution: Vec::new(),
+      solution: vec![u32::MAX; n].into_boxed_slice(),
       stack: vec![Row::new(n)]
     }
   }
@@ -23,8 +23,8 @@ impl Iterator for NQueens {
   fn next(&mut self) -> Option<Self::Item> {
     while let Some(mut row) = self.stack.pop() {
       if row.id() == self.n {
-        let solution = self.solution.clone();
-        self.solution.pop();
+        let solution = self.solution.to_vec();
+        self.solution[row.id()-1] = u32::MAX;
         return Some(solution)
       }
 
@@ -32,11 +32,13 @@ impl Iterator for NQueens {
         // The solver has failed in adding the next queen to the board.
         // We remove the last queen from the solution and proceed with the next
         // option (backtracking). 
-        self.solution.pop();
+        if row.id() > 0 {
+          self.solution[row.id()-1] = u32::MAX;
+        }
         continue;
       }
 
-      self.solution.push(row.get_next_column());
+      self.solution[row.id()] = row.get_next_column();
       
       let next_row = row.next_row();
       self.stack.push(row);
