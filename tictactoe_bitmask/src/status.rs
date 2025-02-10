@@ -8,13 +8,13 @@ pub enum GameStatus {
 
 impl GameStatus {
   pub fn from_value(value: u32) -> Self {
-      match value {
-          0 => GameStatus::Ongoing,
-          1 => GameStatus::Draw,
-          2 => GameStatus::Player1Win,
-          3 => GameStatus::Player2Win,
-          _ => panic!("Expected numbers from 0 to 3 only, got {} instead.", value),
-      }
+    match value {
+      0 => GameStatus::Ongoing,
+      1 => GameStatus::Draw,
+      2 => GameStatus::Player1Win,
+      3 => GameStatus::Player2Win,
+      _ => panic!("Expected numbers from 0 to 3 only, got {} instead.", value),
+    }
   }
 
   pub fn from_cells(player1_cells: u32, player2_cells: u32) -> Self {
