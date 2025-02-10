@@ -58,6 +58,6 @@ fn main() {
     .iter()
     .fold(GameState::new(), |acc, m| acc.set(m.0, m.1));
 
-  println!("{}", game);
+  assert_eq!(game.state, 0x33a6);
   // 0x33a6 = 13222
 }
