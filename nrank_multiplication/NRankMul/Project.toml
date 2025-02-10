@@ -1,0 +1,4 @@
+name = "NRankMul"
+uuid = "36e8854b-41c3-449a-9edf-2b53e7d4e2db"
+authors = ["Kaonan Micadei <>"]
+version = "0.1.0"

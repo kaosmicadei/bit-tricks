@@ -1,4 +1,6 @@
-using Test
+module NRankMul
+
+export bit_swap, multiply
 
 """Swaps the *i*-th bit from a number `n` with its least significant bit. 
 Adapted from:
@@ -22,28 +24,4 @@ function multiply(matrix::Matrix{Float32}, vector::Vector{Float32})::Vector{Floa
   transpose(acc) |> vec
 end
 
-
-# <<<TESTS>>>
-function main()
-  # Number of qubits.
-  N = isempty(ARGS) ? 3 : parse(Int, ARGS[1])
-
-  # Simulate random input.
-  x = rand(Float32, 2^N)
-
-  # Confusion matrix: [a₀₀ a₀₁ ; a₁₀ a₁₁].
-  m::Matrix{Float32} = inv([0.9 0.3; 0.1 0.7])
-
-  print("reshape: ")
-  @time res1 = multiply(m, x)
-
-  print("kron: ")
-  @time res2::Vector{Float32} = kron(fill(m, N)...) * x
-  @test res1 ≈ res2
-end
-
-main()
-
-# Example for N=15 on an Apple M1.
-# reshape:   0.002849 seconds (157 allocations: 7.754 MiB)
-# kron:   2.011607 seconds (37.58 k allocations: 5.335 GiB, 0.43% gc time, 1.92% compilation time) 
+end # module NRankMul
