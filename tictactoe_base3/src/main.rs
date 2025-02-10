@@ -16,15 +16,20 @@ impl GameState {
     Self { state: 0u16 }
   }
 
-  fn get(&self, cell: u32) -> u16 {
-    (self.state / 3u16.pow(cell)) % 3
+  // Avoid recomputation. 
+  const fn power_of_three() -> [u16; 9] {
+    [1, 3, 9, 27, 81, 243, 729, 2187, 6561]
   }
 
-  fn set(&self, cell: u32, value: CellValue) -> Self {
+  fn get(&self, cell: usize) -> u16 {
+    (self.state / GameState::power_of_three()[cell]) % 3
+  }
+
+  fn set(&self, cell: usize, value: CellValue) -> Self {
     let old_value = self.get(cell);
     let new_state = (value as u16)
       .wrapping_sub(old_value) // The wrapping_* operartions to avoid overflow.
-      .wrapping_mul(3u16.pow(cell))
+      .wrapping_mul(GameState::power_of_three()[cell])
       .wrapping_add(self.state);
 
     Self { state: new_state }
