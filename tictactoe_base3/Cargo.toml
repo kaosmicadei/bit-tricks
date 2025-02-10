@@ -3,4 +3,8 @@ name = "tictactoe_base3"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "libgame"
+path = "src/lib.rs"
+
 [dependencies]
