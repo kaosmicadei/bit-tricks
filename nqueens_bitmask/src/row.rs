@@ -12,13 +12,16 @@ impl Row {
   pub fn new(size: usize) -> Self {
     let all_cols = (1 << size) - 1;
 
+    // Taking advantage of the problem symmetry.
+    let half_cols = (1 << (size / 2)) - 1;
+
     Self {
       id: 0,
       mask: all_cols,
       cols: 0,
       diag_l: 0,
       diag_r: 0,
-      available_pos: all_cols,
+      available_pos: half_cols,
     }
   }
 
