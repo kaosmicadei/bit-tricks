@@ -14,14 +14,38 @@ function bitswap0(bit_index::Int64, number::Int64)::Int64
   number ⊻ ((x << bit_index) | x)
 end
 
-function multiply(matrix::Matrix{Float32}, vector::Vector{Float32})::Vector{Float32}
+"""
+    multiply(matrix2x2, vector2N)
+
+Memory and time efficent multiplication of a 2×2 matix `M` by a 2^N vector `v`
+similar to
+
+    kron(fill(M, N)...) * v
+
+# Examples
+```julia-repl
+julia> multiply([1 2; 3 4], collect(1:8))
+8-element Vector{Int64}:
+  153
+  351
+  345
+  791
+  333
+  763
+  749
+ 1715
+```
+"""
+function multiply(matrix2x2::Matrix{Float32}, vector2N::Vector{Float32})::Vector{Float32}
+  # Get the number of indices.
   vector_length = length(vector)
-  num_qubits = log2(vector_length) |> Int64
-  acc = vector |> copy |> v -> reshape(v, 2, :)
-  for i in 0:(num_qubits-1)
-    acc .= matrix * reshape(acc[bitswap0.(i, 0:(vector_length-1)).+1], 2, :)
-  end
-  transpose(acc) |> vec
+  rank = log2(vector_length) |> Int64
+
+  vector_indices = 0:(vector_length-1)
+  tensor_indices = 0:(rank-1)
+
+  f = (acc, i) -> matrix2x2 * reshape(acc[bitswap0.(i, vector_indices) .+ 1], 2,:)
+  foldl(f, tensor_indices; init=copy(vector2N)) |> transpose |> vec
 end
 
 end # module NRankMul
