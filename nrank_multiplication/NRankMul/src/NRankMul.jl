@@ -2,7 +2,10 @@ module NRankMul
 
 export bitswap0, multiply
 
-"""Swaps the *i*-th bit from a number `n` with its least significant bit. 
+"""
+    bitswap0(bit_index::Int64, number::Int64)::Int64
+
+Swaps the *i*-th bit from a number `n` with its least significant bit. 
 Adapted from:
     http://graphics.stanford.edu/~seander/bithacks.html#SwappingBitsXOR
 """
@@ -15,7 +18,7 @@ function bitswap0(bit_index::Int64, number::Int64)::Int64
 end
 
 """
-    multiply(matrix2x2, vector2N)
+    multiply(matrix2x2::Matrix{Float32}, vector2N::Vector{Float32})::Vector{Float32}
 
 Memory and time efficent multiplication of a 2×2 matix `M` by a 2^N vector `v`
 similar to
@@ -23,7 +26,7 @@ similar to
     kron(fill(M, N)...) * v
 
 # Examples
-```julia-repl
+```jldoctest
 julia> multiply([1 2; 3 4], collect(1:8))
 8-element Vector{Int64}:
   153
@@ -38,7 +41,7 @@ julia> multiply([1 2; 3 4], collect(1:8))
 """
 function multiply(matrix2x2::Matrix{Float32}, vector2N::Vector{Float32})::Vector{Float32}
   # Get the number of indices.
-  vector_length = length(vector)
+  vector_length = length(vector2N)
   rank = log2(vector_length) |> Int64
 
   vector_indices = 0:(vector_length-1)
