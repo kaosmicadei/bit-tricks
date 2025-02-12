@@ -1,6 +1,6 @@
 module NRankMul
 
-export bitswap0, multiply, multiply_alt
+export bitswap0, multiply
 
 """
     bitswap0(bit_index::Int64, number::Int64)::Int64
@@ -18,65 +18,44 @@ function bitswap0(bit_index::Int64, number::Int64)::Int64
 end
 
 """
-    multiply(matrix2x2::Matrix{Float32}, vector2N::Vector{Float32})::Vector{Float32}
+    multiply(m::Matrix{Float32}, v::Vector{Float32})::Vector{Float32}
 
 Memory and time efficent multiplication of a 2×2 matix `M` by a 2^N vector `v`
 similar to
 
     kron(fill(M, N)...) * v
 
+This function was originally designed for error correction of quantum
+measurementsto applying a confusion matrix to a vector of measurements.
+
 # Examples
 ```jldoctest
-julia> multiply([1 2; 3 4], collect(1:8))
+julia> multiply([Float32(1) 2; 3 4], collect(Float32(1):8))
 8-element Vector{Int64}:
-  153
-  351
-  345
-  791
-  333
-  763
-  749
- 1715
+  153.0
+  351.0
+  345.0
+  791.0
+  333.0
+  763.0
+  749.0
+ 1715.0
 ```
 """
-function multiply(matrix2x2::Matrix{Float32}, vector2N::Vector{Float32})::Vector{Float32}
+function multiply(m::Matrix{Float32}, v::Vector{Float32})::Vector{Float32}
+  @assert size(m) == (2,2) "Matrix must be 2x2."
+
+  vector_length = length(v)
+  @assert vector_length & (vector_length - 1) == 0 "Vector length must be a power of 2."
+
   # Get the number of indices.
-  vector_length = length(vector2N)
   rank = log2(vector_length) |> Int64
 
   vector_indices = 0:(vector_length-1)
   tensor_indices = 0:(rank-1)
 
-  f = (acc, i) -> matrix2x2 * reshape(acc[bitswap0.(i, vector_indices) .+ 1], 2,:)
-  foldl(f, tensor_indices; init=copy(vector2N)) |> transpose |> vec
+  f = (acc, i) -> m * reshape(acc[bitswap0.(i, vector_indices) .+ 1], 2,:)
+  foldl(f, tensor_indices; init=copy(v)) |> transpose |> vec
 end
 
 end # module NRankMul
-
-
-#=
-  Not the best solution but worthy to keep for the algorithm. It's memory
-  efficent but too slow.
-=#
-# function multiply_alt(matrix2x2::Matrix{Float32}, vector2N::Vector{Float32})::Vector{Float32}
-#   @assert size(matrix2x2) == (2,2) "Matrix must be 2x2."
-#   len = length(vector2N)
-#   @assert len & (len - 1) == 0 "Vector must be a power of 2."
-# 
-#   log_m = log.(matrix2x2)
-#
-#   indices = 0:(len - 1)
-#   rank = log2(len) |> UInt32
-# 
-#   f(lin, col) = begin
-#     a = rank-count_ones(lin | col)
-#     b = count_ones((lin ⊻ col) & col)
-#     c = count_ones((lin ⊻ col) & lin)
-#     d = count_ones(lin & col)
-#     a * log_m[1,1] + b * log_m[1,2] + c * log_m[2,1] + d * log_m[2,2] |> sum |> exp
-#   end
-#
-#   g(acc, (col, val)) = acc .+ val .* map(lin -> f(lin, col-1), indices)
-# 
-#   foldl(g, enumerate(vector2N), init=zeros(Float32,len))
-# end
